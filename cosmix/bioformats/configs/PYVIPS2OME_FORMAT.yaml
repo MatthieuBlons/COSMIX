@@ -1,0 +1,10 @@
+uchar: "uint8"      # Unsigned 8-bit integer
+char: "int8"        # Signed 8-bit integer
+ushort: "uint16"    # Unsigned 16-bit integer
+short: "int16"      # Signed 16-bit integer
+uint: "uint32"      # Unsigned 32-bit integer
+int: "int32"        # Signed 32-bit integer
+float: "float"      # 32-bit floating point
+double: "double"    # 64-bit floating point
+complex: "complex" # Complex number, 2x 32-bit floating point
+dpcomplex: "double-complex" # Complex number, 2x 64-bit floating point

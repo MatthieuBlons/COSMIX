@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/
+
+# Editor
+.vscode/
+CLAUDE.md
+
+# Experiment outputs
+wandb/
+runs/
+lightning_logs/
+*.pt
+*.pth
+*.ckpt
+
+# Model checkpoints (never commit weights)
+*.pt.tar
+*.bin
+*.safetensors
+*.onnx
+*.gguf
+.cache/
+
+# Data
+*.h5
+*.hdf5
+*.ndpi
+*.svs
+*.csv
+*.xlsx
+*.npy
+*.npz
+*.tiff
+*.tif
+*.vms
+*.vmu
+*.scn
+*.mrxs
+*.svslide
+*.bif
+*.jpg
+*.jpeg
+*.png
