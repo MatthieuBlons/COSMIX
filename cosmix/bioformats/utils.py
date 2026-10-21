@@ -18,6 +18,16 @@ LOGGER = logging.getLogger(__name__)
 # File suffixes readable by libvips (the OME-TIFF suffix is `.tif` / `.tiff`)
 VIPS_READABLE_FORMATS = set(pyvips.get_suffixes())
 
+# Maximum value of the integer pyvips formats (float formats are assumed in [0, 1])
+VIPS_FORMAT_MAX = {
+    "uchar": 255,
+    "char": 127,
+    "ushort": 65535,
+    "short": 32767,
+    "uint": 4294967295,
+    "int": 2147483647,
+}
+
 # Conversion factors from OME length units to micrometers
 OME_UNIT_TO_MICRON = {
     "Å": 1e-4,
@@ -174,6 +184,18 @@ def to_uint8(arr: np.ndarray) -> np.ndarray:
     return np.clip(np.round(arr), 0, 255).astype(np.uint8)
 
 
+def to_uint16(arr: np.ndarray) -> np.ndarray:
+    """Rescale an array to uint16 for display, using the full range of its dtype."""
+    if arr.dtype == np.uint16:
+        return arr
+    if np.issubdtype(arr.dtype, np.integer):
+        arr = arr.astype(np.float64) * (65535.0 / np.iinfo(arr.dtype).max)
+    else:
+        # float images are assumed to be in [0, 1]
+        arr = arr.astype(np.float64) * 65535.0
+    return np.clip(np.round(arr), 0, 65535).astype(np.uint16)
+
+
 def arr_to_pil(img: np.ndarray) -> Image.Image:
     """Convert a 2D (grayscale), RGB or RGBA array to a PIL image (rescaled to uint8)."""
     img = to_uint8(img)
@@ -226,6 +248,26 @@ def get_x_y_to(
 # ----------------------------------------------------------------------------
 # Intensities and pyramids
 # ----------------------------------------------------------------------------
+
+
+def vips_to_format(
+    image_pyvips: pyvips.Image,
+    vips_format: str,
+) -> pyvips.Image:
+    """Rescale a pyvips image to `vips_format`, using the full range of both formats.
+
+    Float images are assumed to be in [0, 1].
+    """
+    if image_pyvips.format == vips_format:
+        return image_pyvips
+    if vips_format not in VIPS_FORMAT_MAX:
+        raise ValueError(
+            f"`vips_format`={vips_format!r} is not supported, expected one of "
+            f"{list(VIPS_FORMAT_MAX)}"
+        )
+    source_max = VIPS_FORMAT_MAX.get(image_pyvips.format, 1.0)
+    scale = VIPS_FORMAT_MAX[vips_format] / source_max
+    return (image_pyvips * scale).rint().cast(vips_format)
 
 
 def vips_normalize(
